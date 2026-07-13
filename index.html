@@ -121,7 +121,8 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
 .step{display:none;flex-direction:column;align-items:center;width:100%}
 .step.on{display:flex}
 /* ---- promo banner (time-limited) ---- */
-.promo{position:relative;background:linear-gradient(135deg,rgba(255,213,74,.15),rgba(255,120,60,.12));border:1px solid rgba(255,213,74,.45);border-radius:16px;padding:13px 40px 13px 16px;margin-top:20px;max-width:520px;width:100%;font-size:14px;animation:promoIn .8s cubic-bezier(.2,1.2,.4,1)}
+#promofix{position:fixed;left:12px;right:12px;bottom:14px;z-index:80;display:flex;justify-content:center;pointer-events:none}
+.promo{position:relative;pointer-events:auto;background:linear-gradient(135deg,rgba(58,42,12,.96),rgba(52,26,26,.96));border:1px solid rgba(255,213,74,.55);border-radius:16px;padding:13px 40px 13px 16px;max-width:520px;width:100%;font-size:14px;box-shadow:0 14px 44px rgba(0,0,0,.55);animation:promoIn .8s cubic-bezier(.2,1.2,.4,1)}
 @keyframes promoIn{0%{opacity:0;transform:translateY(26px)}100%{opacity:1;transform:none}}
 .promo b{color:#ffd54a}
 .promo .pd{opacity:.9;margin:5px 0 10px;line-height:1.6;font-size:13.5px}
@@ -175,7 +176,6 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
       <input type="text" id="joincode" placeholder="קוד משפחה (למשל: K7XM2PQ9WD)" style="text-transform:uppercase;letter-spacing:2px">
       <button class="btn sec" style="width:auto;margin:0;flex:none" onclick="joinFamily(document.getElementById('joincode').value)">🔄 חבר</button>
     </div>
-    <div class="promo-slot" style="width:100%;max-width:520px"></div>
   </div>
   <div class="step" id="st4">
     <h1 class="logo" style="font-size:26px">🔄 חיבור בין מכשירים</h1>
@@ -213,7 +213,6 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
   <div class="tag" id="famline"></div>
   <div class="kids" id="kidsel"></div>
   <button class="btn sec" style="margin-top:22px" onclick="openParent()">🔐 אזור הורים</button>
-  <div class="promo-slot" style="width:100%;max-width:520px"></div>
   <div class="creds">נבנה באהבה ע״י שמשון ג׳יקוב — מורה, מחנך ומדריך AI
     <div class="credlinks">
       <a href="https://chat.whatsapp.com/FSV8LARclvl9tX5P4xOHZU" target="_blank" rel="noopener">💬 קבוצת ה-AI שלי</a>
@@ -252,7 +251,6 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
     <button class="btn sec" onclick="openCollection()">🎁 האוסף שלי</button>
     <button class="btn sec" onclick="show('scr-kids');renderKids()">👨‍👩‍👦 החלפה</button>
   </div>
-  <div class="promo-slot" style="width:100%;max-width:520px"></div>
 </div>
 
 <!-- ===== ISLAND ===== -->
@@ -324,6 +322,7 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
 </div>
 
 <div id="toast"></div>
+<div id="promofix"></div>
 <canvas id="confetti"></canvas>
 <script>
 'use strict';
@@ -336,7 +335,7 @@ var TESTMODE=location.search.indexOf('test')>=0;
 
 function today(){return new Date().toLocaleDateString('en-CA')}
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(typeof syncPush==='function')syncPush()}
-function show(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});$('#'+id).classList.add('on')}
+function show(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});$('#'+id).classList.add('on');var pf=$('#promofix');if(pf)pf.style.display=(id==='scr-run'||id==='scr-island'||id==='scr-intro')?'none':'flex'}
 function toast(msg,ms){var t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(function(){t.classList.remove('show')},ms||2600)}
 
 /* ---------- audio ---------- */
@@ -638,11 +637,10 @@ setTimeout(function(){PROMO_READY=true;renderPromo()},100000);
 function renderPromo(){
   var hid=false;try{hid=localStorage.getItem('alufimAdHide')===today()}catch(e){}
   var live=today()<=PROMO_END;
-  document.querySelectorAll('.promo-slot').forEach(function(el){
-    if(hid||!live||!PROMO_READY){el.innerHTML='';return}
-    if(el.querySelector('.promo'))return;
-    el.innerHTML='<div class="promo"><span class="px" onclick="hidePromo()">✖</span><b>🎨 להורים — החופש הזה: סדנת AI לילדים בזום!</b><div class="pd">הילדים יוצרים בעצמם: תמונות, שירים, סרטונים, משחקים ואתרים · 7 מפגשים של שעה · 15-22.7 · 420 ₪ · קבוצות קטנות</div><a class="pbtn" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! אשמח לפרטים על סדנת ה-AI לילדים 🎨')+'" target="_blank" rel="noopener">📲 לפרטים והרשמה</a></div>';
-  });
+  var el=$('#promofix');if(!el)return;
+  if(hid||!live||!PROMO_READY){el.innerHTML='';return}
+  if(el.querySelector('.promo'))return;
+  el.innerHTML='<div class="promo"><span class="px" onclick="hidePromo()">✖</span><b>🎨 להורים — החופש הזה: סדנת AI לילדים בזום!</b><div class="pd">הילדים יוצרים בעצמם: תמונות, שירים, סרטונים, משחקים ואתרים · 7 מפגשים של שעה · 15-22.7 · 420 ₪ · קבוצות קטנות</div><a class="pbtn" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! אשמח לפרטים על סדנת ה-AI לילדים 🎨')+'" target="_blank" rel="noopener">📲 לפרטים והרשמה</a></div>';
 }
 function hidePromo(){try{localStorage.setItem('alufimAdHide',today())}catch(e){}renderPromo()}
 
