@@ -1372,6 +1372,11 @@ function syncCopy(){
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(c).then(function(){toast('✅ הקוד הועתק — שלחו למכשיר השני')});
   else toast('הקוד: '+c);
 }
+function syncCopyLink(){
+  var url=location.origin+location.pathname+'?join='+S.sync.code;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(function(){toast('🔗 הקישור הועתק — שלחו בווטסאפ ופותחים במכשיר השני')});
+  else toast(url);
+}
 function syncDot(){var d=document.getElementById('syncdot');if(d){d.textContent=SYNC_OK===false?'🔴 בעיית חיבור — ינוסה שוב אוטומטית':(SYNC_OK?'🟢 מסונכרן':'⏳ ממתין...')}}
 function syncTab(){
   var h='';
@@ -1379,15 +1384,27 @@ function syncTab(){
     h+='<div style="text-align:center"><div style="font-size:13.5px;opacity:.8;margin-bottom:6px">קוד המשפחה שלכם:</div>';
     h+='<div style="font-family:monospace;font-size:26px;font-weight:800;letter-spacing:5px;color:#ffd54a;background:rgba(0,0,0,.35);border-radius:12px;padding:10px;margin-bottom:8px">'+S.sync.code+'</div>';
     h+='<div id="syncdot" style="font-size:13.5px;margin-bottom:10px">'+(SYNC_OK===false?'🔴 בעיית חיבור':'🟢 מסונכרן')+'</div></div>';
-    h+='<button class="btn sec" onclick="syncCopy()">📋 העתק קוד</button>';
+    h+='<button class="btn" onclick="syncCopyLink()">🔗 העתק קישור הזמנה (הכי קל!)</button>';
+    h+='<button class="btn sec" onclick="syncCopy()">📋 העתק קוד בלבד</button>';
     h+='<button class="btn sec" onclick="syncNewCode()">🔁 החלף קוד (מנתק מכשירים ישנים)</button>';
-    h+='<div class="hint">📱 במכשיר השני: פותחים את האתר ← במסך הפתיחה לוחצים "יש לכם קוד משפחה?" ← מקישים את הקוד. מאותו רגע הכול משותף: משימות, מטבעות, האיים והרצף.<br><br>🔒 <b>אבטחה:</b> הקוד הוא המפתח היחיד למשפחה — כמו מפתח לבית. אל תפרסמו אותו, שתפו רק עם בני הבית. אפשר להחליף קוד בכל רגע.</div>';
+    h+='<div class="hint">📱 הדרך הקלה: "העתק קישור הזמנה" ← שולחים בווטסאפ ← פותחים במכשיר השני ← מחוברים אוטומטית, בלי להקליד כלום!<br><br>🔒 <b>אבטחה:</b> הקוד/קישור הוא המפתח היחיד למשפחה — כמו מפתח לבית. שתפו רק עם בני הבית. אפשר להחליף קוד בכל רגע.</div>';
   }else{
     h+='<p style="font-size:15px;line-height:1.8">רוצים שההורה יאשר מהטלפון שלו והילדים ישחקו בטאבלט — והכול יישמר יחד בענן?</p>';
-    h+='<button class="btn" onclick="syncCreate()">🔄 צור קוד משפחה</button>';
-    h+='<div class="hint">נוצר קוד סודי בן 10 תווים. מקישים אותו פעם אחת בכל מכשיר — ומאז הכול מסונכרן אוטומטית. בלי הרשמה, בחינם.</div>';
+    h+='<button class="btn" onclick="syncCreate()">🎲 צור קוד אקראי (הכי בטוח)</button>';
+    h+='<div style="text-align:center;opacity:.7;font-size:13.5px;margin:10px 0 4px">— או —</div>';
+    h+='<div class="inrow"><input type="text" id="customcode" placeholder="קוד משלכם, למשל מספר הטלפון" maxlength="12" style="letter-spacing:1px"><button class="btn sec" style="width:auto;margin:0;flex:none" onclick="syncCreateCustom()">השתמש</button></div>';
+    h+='<div class="hint">💡 <b>למה צריך קוד?</b> כדי שכל משפחה בעולם תקבל "בית" משלה בענן — הקוד חייב להיות ייחודי רק לכם.<br>📞 מספר הטלפון שלכם (10 ספרות) עובד מצוין וקל לזכור. רק שימו לב: מי שמכיר את המספר יוכל לנחש — הקוד האקראי בטוח יותר, והכי קל בכלל: קישור ההזמנה, בלי לזכור כלום.</div>';
   }
   return h;
+}
+function syncCreateCustom(){
+  var v=(document.getElementById('customcode').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(v.length<9){toast('צריך לפחות 9 תווים — למשל מספר טלפון מלא 🙂');return}
+  toast('🔄 בודק שהקוד פנוי...');
+  fetch(FB+v+'.json').then(function(r){return r.json()}).then(function(c){
+    if(c){toast('הקוד הזה כבר תפוס ע״י משפחה אחרת — נסו אחר 🙈');return}
+    S.sync={code:v,rev:0};save();sndCheck();toast('🔄 הקוד שלכם הופעל!');ptab('sync');
+  }).catch(function(){toast('בעיית אינטרנט — נסו שוב')});
 }
 /* periodic gentle pull while on the family screen */
 setInterval(function(){
@@ -1401,6 +1418,17 @@ setInterval(function(){
 function boot(){
   var raw=null;try{raw=localStorage.getItem(LS)}catch(e){}
   if(raw){try{S=JSON.parse(raw)}catch(e){S=null}}
+  /* invite link: ?join=CODE — auto-connect this device to the family */
+  var jm=location.search.match(/[?&]join=([A-Z0-9]{8,12})/i);
+  if(jm){
+    var jcode=jm[1].toUpperCase();
+    var already=S&&S.sync&&S.sync.code===jcode;
+    if(!already&&(!S||!S.kids||!S.kids.length||confirm('להתחבר למשפחה מהקישור? הנתונים במכשיר הזה יוחלפו בנתוני המשפחה.'))){
+      S=S||newState();
+      setTimeout(function(){joinFamily(jcode)},400); /* async — the normal screen shows meanwhile */
+    }
+    history.replaceState(null,'',location.pathname);
+  }
   if(S&&S.pin&&S.kids){
     /* returning family */
     if(!S.record)S.record={};
