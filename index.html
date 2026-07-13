@@ -121,7 +121,8 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
 .step{display:none;flex-direction:column;align-items:center;width:100%}
 .step.on{display:flex}
 /* ---- promo banner (time-limited) ---- */
-.promo{position:relative;background:linear-gradient(135deg,rgba(255,213,74,.15),rgba(255,120,60,.12));border:1px solid rgba(255,213,74,.45);border-radius:16px;padding:13px 40px 13px 16px;margin-top:20px;max-width:520px;width:100%;font-size:14px}
+.promo{position:relative;background:linear-gradient(135deg,rgba(255,213,74,.15),rgba(255,120,60,.12));border:1px solid rgba(255,213,74,.45);border-radius:16px;padding:13px 40px 13px 16px;margin-top:20px;max-width:520px;width:100%;font-size:14px;animation:promoIn .8s cubic-bezier(.2,1.2,.4,1)}
+@keyframes promoIn{0%{opacity:0;transform:translateY(26px)}100%{opacity:1;transform:none}}
 .promo b{color:#ffd54a}
 .promo .pd{opacity:.9;margin:5px 0 10px;line-height:1.6;font-size:13.5px}
 .promo .px{position:absolute;top:8px;left:12px;cursor:pointer;opacity:.55;font-size:14px}
@@ -630,13 +631,15 @@ function approveKid(i){var k=S.kids[i];S.approved[k.id]=true;k.coins+=20;save();
 function pAddTask(){var n=$('#pt-name').value.trim();if(!n)return;S.tasks.push({id:'t'+Date.now(),em:$('#pt-em').value.trim()||'⭐',name:n,on:true});save();ptab('tasks')}
 function pAddKid(){var n=$('#pk-name').value.trim().replace(/[<>&"']/g,'');if(!n)return;S.kids.push(kidNew(n,$('#pk-mode').value));save();ptab('kids')}
 
-/* ---------- time-limited promo banner (auto-expires) ---------- */
-var PROMO_END='2026-07-22';
+/* ---------- time-limited promo banner (auto-expires, appears gently after 100s) ---------- */
+var PROMO_END='2026-07-22',PROMO_READY=false;
+setTimeout(function(){PROMO_READY=true;renderPromo()},100000);
 function renderPromo(){
   var hid=false;try{hid=localStorage.getItem('alufimAdHide')==='1'}catch(e){}
   var live=today()<=PROMO_END;
   document.querySelectorAll('.promo-slot').forEach(function(el){
-    if(hid||!live){el.innerHTML='';return}
+    if(hid||!live||!PROMO_READY){el.innerHTML='';return}
+    if(el.querySelector('.promo'))return;
     el.innerHTML='<div class="promo"><span class="px" onclick="hidePromo()">✖</span><b>🎨 להורים — החופש הזה: סדנת AI לילדים בזום!</b><div class="pd">הילדים יוצרים בעצמם: תמונות, שירים, סרטונים, משחקים ואתרים · 7 מפגשים של שעה · 15-22.7 · 420 ₪ · קבוצות קטנות</div><a class="pbtn" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! אשמח לפרטים על סדנת ה-AI לילדים 🎨')+'" target="_blank" rel="noopener">📲 לפרטים והרשמה</a></div>';
   });
 }
