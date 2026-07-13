@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>מרוץ האלופים ⚡ משימות = דלק!</title>
+<title>מרוץ האלופים ⚡ עושים משימות — מקבלים משחק!</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -124,10 +124,12 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
 <div class="scr" id="scr-setup">
   <div class="step on" id="st1">
     <h1 class="logo">⚡ מרוץ האלופים</h1>
-    <div class="tag">משימות אמיתיות = דלק למשחק 🏃</div>
+    <div class="tag">עושים משימות בבית — מקבלים זמן משחק! 🎮</div>
     <div class="card">
-      <p style="line-height:1.7;font-size:15.5px">ברוכים הבאים! כאן <b>ההורה</b> מגדיר פעם אחת את המשימות היומיות — וכל משימה שהילד משלים במציאות נותנת לו <b style="color:#ffd54a">דלק לזמן משחק</b>. בלי דלק — אין ריצה. עם דלק — ארקייד אמיתי! 🎮</p>
+      <p style="line-height:1.8;font-size:16.5px;text-align:center">פשוט מאוד:<br>✅ עושים משימה אמיתית בבית<br>⏱️ מקבלים זמן משחק<br>🏃 רצים במרוץ!</p>
     </div>
+    <button class="btn play" onclick="demoRun()">🎮 לנסות את המשחק עכשיו!</button>
+    <div class="hint">אהבתם? ההורה בוחר קוד סודי למטה — ומתחילים 👇</div>
     <div class="card">
       <b>בחרו קוד הורה (4 ספרות):</b>
       <div id="pindots">‎</div>
@@ -140,14 +142,14 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
     <div class="card" id="kidlist"></div>
     <div class="card">
       <div class="inrow"><input type="text" id="nk-name" placeholder="שם הילד/ה" maxlength="12">
-      <select id="nk-mode" style="width:130px"><option value="slow">רגוע (6-8)</option><option value="normal">מלא (9-12)</option></select></div>
+      <select id="nk-mode" style="width:130px"><option value="slow">קל (6-8)</option><option value="normal">מהיר (9-12)</option></select></div>
       <button class="btn sec" onclick="addKid()">➕ הוסף</button>
     </div>
     <button class="btn" id="st2next" onclick="wizNext(3)" disabled>המשך ←</button>
   </div>
   <div class="step" id="st3">
     <h1 class="logo" style="font-size:26px">📋 המשימות היומיות</h1>
-    <div class="tag">כבו מה שלא רלוונטי, הוסיפו משלכם. כל משימה = ⛽ 35 שניות משחק + 🪙 10</div>
+    <div class="tag">כבו מה שלא מתאים, הוסיפו משלכם. כל משימה = ⏱️ 35 שניות משחק + 🪙 10</div>
     <div class="card" id="tasklist"></div>
     <div class="card">
       <div class="inrow"><input type="text" id="nt-em" placeholder="😀" maxlength="4" style="width:64px;flex:none;text-align:center"><input type="text" id="nt-name" placeholder="משימה חדשה..." maxlength="30"></div>
@@ -175,9 +177,10 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
     <div class="fuelbar"><div class="fuelfill" id="fuelfill"></div><div class="fueltxt" id="fueltxt"></div></div>
   </div>
   <button class="btn play" id="btnplay" onclick="startRun()">🏃 לרוץ!</button>
-  <div class="sect">📋 המשימות של היום — כל אחת = ⛽ +35 שנ' + 🪙 10</div>
+  <div class="hint" id="playhint" style="display:none">👇 עשיתם משהו מהרשימה? לחצו עליו — ותקבלו זמן משחק!</div>
+  <div class="sect">📋 מה כבר עשיתי היום?</div>
   <div class="tasks" id="hometasks"></div>
-  <div class="sect">🎯 משימות המרוץ של היום — שלושתן ביחד = דלק בונוס ומכפיל ×1.5</div>
+  <div class="sect">🎯 האתגרים של היום — סיימו את שלושתם וקבלו הפתעה! 🎁</div>
   <div class="missions" id="homemissions"></div>
   <div class="row">
     <button class="btn sec" onclick="openCollection()">🎁 האוסף שלי</button>
@@ -189,7 +192,7 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
 <div class="scr" id="scr-collection">
   <button class="back" onclick="show('scr-home');renderHome()">→ חזרה</button>
   <h1 class="logo" style="font-size:26px;margin-top:34px">🎁 אוסף האלופים</h1>
-  <div class="tag">אספו מטבעות במרוץ ופתחו דמויות חדשות! <span class="pill coins" style="display:inline-flex">🪙 <span id="c-coins">0</span></span></div>
+  <div class="tag">רוצו, אספו מטבעות — ופתחו חברים חדשים! <span class="pill coins" style="display:inline-flex">🪙 <span id="c-coins">0</span></span></div>
   <div class="grid" id="chargrid"></div>
 </div>
 
@@ -416,12 +419,12 @@ function finishSetup(){if(!S.tasks.some(function(t){return t.on})){toast('צרי
 
 /* ---------- kid select ---------- */
 function renderKids(){
-  $('#famline').innerHTML='🔥 רצף משפחתי: <b>'+S.streak+' ימים</b> &nbsp;|&nbsp; 🧊 הקפאות: '+S.freezes;
+  $('#famline').innerHTML='🔥 כל המשפחה ברצף: <b>'+S.streak+' ימים</b>';
   var el=$('#kidsel');el.innerHTML='';
   S.kids.forEach(function(k){
     var doneN=k.done.length,total=S.tasks.filter(function(t){return t.on}).length;
     var d=document.createElement('div');d.className='kidcard';
-    d.innerHTML='<canvas width="90" height="90"></canvas><div><div class="kn">'+k.name+'</div><div class="ks">✅ '+doneN+'/'+total+' משימות · ⛽ '+Math.round(k.fuel)+' שנ׳ · 🪙 '+k.coins+'</div></div><div class="karr">◄</div>';
+    d.innerHTML='<canvas width="90" height="90"></canvas><div><div class="kn">'+k.name+'</div><div class="ks">✅ '+doneN+'/'+total+' משימות · ⏱️ '+Math.round(k.fuel)+' שנ׳ · 🪙 '+k.coins+'</div></div><div class="karr">◄</div>';
     d.onclick=function(){ac();K=k;show('scr-home');renderHome()};
     el.appendChild(d);paintCharCanvas(d.querySelector('canvas'),k.charId);
   });
@@ -437,13 +440,14 @@ function renderHome(){
   paintCharCanvas($('#homechar'),K.charId);
   var pct=Math.min(100,K.fuel/fuelMax()*100);
   $('#fuelfill').style.width=pct+'%';
-  $('#fueltxt').textContent='⛽ '+Math.round(K.fuel)+' שניות משחק';
+  $('#fueltxt').textContent='⏱️ יש לך '+Math.round(K.fuel)+' שניות משחק';
   var can=K.fuel>=10;
   $('#btnplay').disabled=!can;
-  $('#btnplay').textContent=can?'🏃 לרוץ! ('+Math.round(K.fuel)+' שנ׳)':'⛽ השלימו משימה כדי לרוץ!';
+  $('#btnplay').textContent=can?'🏃 לשחק! ('+Math.round(K.fuel)+' שנ׳)':'⏱️ עשו משימה כדי לשחק!';
+  $('#playhint').style.display=can?'none':'block';
   /* tasks */
   var h='';S.tasks.forEach(function(t){if(!t.on)return;var done=K.done.indexOf(t.id)>=0;
-    h+='<div class="task'+(done?' done':'')+'" onclick="toggleTask(\''+t.id+'\')"><span class="em">'+t.em+'</span><span class="nm">'+t.name+'</span><div class="rw">⛽ +35 · 🪙 +10</div></div>'});
+    h+='<div class="task'+(done?' done':'')+'" onclick="toggleTask(\''+t.id+'\')"><span class="em">'+t.em+'</span><span class="nm">'+t.name+'</span><div class="rw">⏱️ +35 שניות · 🪙 10</div></div>'});
   $('#hometasks').innerHTML=h;
   /* missions */
   var mh='';S.missions.forEach(function(m,i){
@@ -456,7 +460,7 @@ function toggleTask(id){
   if(i>=0){K.done.splice(i,1);K.fuel=Math.max(0,K.fuel-FUEL_PER_TASK);K.coins=Math.max(0,K.coins-COINS_PER_TASK)}
   else{
     K.done.push(id);K.fuel+=FUEL_PER_TASK;K.coins+=COINS_PER_TASK;sndCheck();
-    var msgs=['כל הכבוד! ⛽ +35 שניות!','אלוף! עוד דלק למרוץ! 🔥','יש! המיכל מתמלא! ⛽','מדהים! 🪙 +10 ו⛽ +35!'];
+    var msgs=['כל הכבוד! ⏱️ +35 שניות משחק!','איזה אלוף! עוד זמן משחק! 🔥','יש! ⏱️ +35 שניות!','מדהים! 🪙 +10 ו⏱️ +35 שניות!'];
     toast(msgs[Math.floor(Math.random()*msgs.length)]);
     if(K.done.length===S.tasks.filter(function(t){return t.on}).length){setTimeout(function(){sndFanfare();confettiBurst();toast('🏆 כל המשימות של היום — אלוף אמיתי!')},400)}
   }
@@ -509,8 +513,8 @@ function ptab(t){
     h+='<div class="inrow"><input type="text" id="pt-em" placeholder="😀" maxlength="4" style="width:58px;flex:none;text-align:center"><input type="text" id="pt-name" placeholder="משימה חדשה..."></div><button class="btn sec" onclick="pAddTask()">➕ הוסף</button>';
   }
   else if(t==='kids'){
-    S.kids.forEach(function(k,i){h+='<div class="trow"><b>'+k.name+'</b><select style="width:120px;margin-inline-start:auto" onchange="S.kids['+i+'].mode=this.value;save()"><option value="slow"'+(k.mode==='slow'?' selected':'')+'>רגוע (6-8)</option><option value="normal"'+(k.mode==='normal'?' selected':'')+'>מלא (9-12)</option></select><span class="del" onclick="if(confirm(\'למחוק את '+k.name+'?\')){S.kids.splice('+i+',1);save();ptab(\'kids\')}">✖</span></div>'});
-    h+='<div class="inrow"><input type="text" id="pk-name" placeholder="שם" maxlength="12"><select id="pk-mode" style="width:120px"><option value="slow">רגוע</option><option value="normal">מלא</option></select></div><button class="btn sec" onclick="pAddKid()">➕ הוסף ילד/ה</button>';
+    S.kids.forEach(function(k,i){h+='<div class="trow"><b>'+k.name+'</b><select style="width:120px;margin-inline-start:auto" onchange="S.kids['+i+'].mode=this.value;save()"><option value="slow"'+(k.mode==='slow'?' selected':'')+'>קל (6-8)</option><option value="normal"'+(k.mode==='normal'?' selected':'')+'>מהיר (9-12)</option></select><span class="del" onclick="if(confirm(\'למחוק את '+k.name+'?\')){S.kids.splice('+i+',1);save();ptab(\'kids\')}">✖</span></div>'});
+    h+='<div class="inrow"><input type="text" id="pk-name" placeholder="שם" maxlength="12"><select id="pk-mode" style="width:120px"><option value="slow">קל</option><option value="normal">מהיר</option></select></div><button class="btn sec" onclick="pAddKid()">➕ הוסף ילד/ה</button>';
     h+='<div class="hint">🔥 רצף משפחתי נשמר כשכל ילד משלים לפחות 3 משימות ביום. יש 2 הקפאות־רצף בשבוע לימים חלשים.</div>';
   }
   el.innerHTML=h;
@@ -701,7 +705,7 @@ function floatAdd(x,y,txt,col){R.floats.push({x:x,y:y,txt:txt,col:col,t:0})}
 var hudT=0;
 function updHUD(force){
   var n=performance.now();if(!force&&n-hudT<100)return;hudT=n;
-  $('#h-fuel').textContent='⛽ '+Math.max(0,Math.ceil(R.fuel));
+  $('#h-fuel').textContent='⏱️ '+Math.max(0,Math.ceil(R.fuel));
   $('#h-dist').textContent=Math.round(R.dist)+' מ׳';
   $('#h-coins').textContent='🪙 '+R.coins;
   var c=$('#h-combo');c.textContent=R.combo>2?'🔗 ×'+R.combo:'';c.style.transform='scale('+Math.min(1.5,1+R.combo*.02)+')';
@@ -841,18 +845,33 @@ function endRun(why){
   if(earned>K.best.coins)K.best.coins=earned;
   save();
   /* card */
-  $('#e-title').textContent=why==='hearts'?'💥 אופס, נגמרו הלבבות!':'⛽ הדלק נגמר — איזו ריצה!';
+  $('#e-title').textContent=why==='hearts'?'💥 אופס, נגמרו הלבבות!':'⏱️ נגמר הזמן — איזו ריצה!';
   $('#e-dist').textContent=d+' מ׳';
   $('#e-coins').textContent='+'+earned+(mult>1?' (×1.5!)':'');
   $('#e-combo').textContent='×'+R.comboBest;
   $('#e-rec').textContent=rec;
-  var mh='';doneNew.forEach(function(m){mh+='<div class="misline">🎯 משימה הושלמה: '+m.txt+' ✓</div>'});
-  if(allM)mh+='<div class="misline" style="color:#7dffa8;font-weight:800">🌟 כל המשימות! ⛽ +20 ומכפיל ×1.5 לכל היום!</div>';
+  var mh='';doneNew.forEach(function(m){mh+='<div class="misline">🎯 אתגר הושלם: '+m.txt+' ✓</div>'});
+  if(allM)mh+='<div class="misline" style="color:#7dffa8;font-weight:800">🌟 כל האתגרים! ההפתעה: ⏱️ +20 שניות ומטבעות כפולים להיום!</div>';
   $('#e-mis').innerHTML=mh;
   $('#e-again').style.display=K.fuel>=10?'block':'none';
   setTimeout(function(){$('#endcard').style.display='flex';if(doneNew.length)sndMission()},650);
 }
-function exitRun(){R.active=false;show('scr-home');renderHome()}
+function exitRun(){
+  R.active=false;
+  if(DEMO){DEMO=false;K=null;
+    if(S&&S.pin&&S.kids&&S.kids.length){show('scr-kids');renderKids()}
+    else show('scr-setup');
+    return;
+  }
+  show('scr-home');renderHome();
+}
+/* demo taste-run from the welcome screen — no setup needed */
+var DEMO=false;
+function demoRun(){
+  ac();DEMO=true;
+  K=kidNew('אורח','normal');K.fuel=30;
+  startRun();
+}
 </script>
 <script>
 'use strict';
