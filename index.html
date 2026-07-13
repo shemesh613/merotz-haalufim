@@ -252,6 +252,7 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
     <button class="btn sec" onclick="openCollection()">🎁 האוסף שלי</button>
     <button class="btn sec" onclick="show('scr-kids');renderKids()">👨‍👩‍👦 החלפה</button>
   </div>
+  <div class="promo-slot" style="width:100%;max-width:520px"></div>
 </div>
 
 <!-- ===== ISLAND ===== -->
@@ -635,7 +636,7 @@ function pAddKid(){var n=$('#pk-name').value.trim().replace(/[<>&"']/g,'');if(!n
 var PROMO_END='2026-07-22',PROMO_READY=false;
 setTimeout(function(){PROMO_READY=true;renderPromo()},100000);
 function renderPromo(){
-  var hid=false;try{hid=localStorage.getItem('alufimAdHide')==='1'}catch(e){}
+  var hid=false;try{hid=localStorage.getItem('alufimAdHide')===today()}catch(e){}
   var live=today()<=PROMO_END;
   document.querySelectorAll('.promo-slot').forEach(function(el){
     if(hid||!live||!PROMO_READY){el.innerHTML='';return}
@@ -643,7 +644,7 @@ function renderPromo(){
     el.innerHTML='<div class="promo"><span class="px" onclick="hidePromo()">✖</span><b>🎨 להורים — החופש הזה: סדנת AI לילדים בזום!</b><div class="pd">הילדים יוצרים בעצמם: תמונות, שירים, סרטונים, משחקים ואתרים · 7 מפגשים של שעה · 15-22.7 · 420 ₪ · קבוצות קטנות</div><a class="pbtn" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! אשמח לפרטים על סדנת ה-AI לילדים 🎨')+'" target="_blank" rel="noopener">📲 לפרטים והרשמה</a></div>';
   });
 }
-function hidePromo(){try{localStorage.setItem('alufimAdHide','1')}catch(e){}renderPromo()}
+function hidePromo(){try{localStorage.setItem('alufimAdHide',today())}catch(e){}renderPromo()}
 
 /* ---------- quest intro (once per kid) ---------- */
 var INTRO_TXT='שלום, אלוף! 🫡\nזוהי המשימה שלך:\n\n🏝️ קיבלת אי קסום — אבל הוא ריק לגמרי!\nהמטרה: להפוך אותו לממלכה.\n\n🪙 בשביל לבנות צריך מטבעות. ככה משיגים:\n✅ משימות אמיתיות בבית = זמן מרוץ\n🏃 רצים במרוץ = אוספים מטבעות\n🏗️ במטבעות בונים באי: בתים, חיות, מגדלים!\n\nכל יום של משימות — האי גדל 🔥\nבהצלחה, אלוף. סומכים עליך!';
