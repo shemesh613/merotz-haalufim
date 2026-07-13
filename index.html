@@ -98,6 +98,7 @@ h1{font-family:'Frank Ruhl Libre',serif;font-weight:900}
 .pinpad{display:grid;grid-template-columns:repeat(3,72px);gap:12px;justify-content:center;margin-top:14px}
 .pk{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:26px;font-weight:800;cursor:pointer;font-family:'Heebo'}
 .pk:active{background:rgba(255,255,255,.25)}
+.pk.ok{background:linear-gradient(180deg,#7dffa8,#1fc95d);color:#06300f;border:none;font-weight:900;box-shadow:0 5px 20px rgba(60,230,120,.45)}
 #pindots{font-size:30px;letter-spacing:12px;text-align:center;margin-top:12px;min-height:42px}
 .tabs{display:flex;gap:8px;width:100%;max-width:520px;margin-bottom:12px}
 .tab{flex:1;text-align:center;padding:9px 4px;border-radius:12px;background:rgba(255,255,255,.07);font-weight:700;font-size:14px;cursor:pointer;border:1px solid transparent}
@@ -119,6 +120,17 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
 .back{position:absolute;top:14px;left:14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:30px;padding:7px 16px;font-family:'Heebo';font-weight:700;font-size:15px;cursor:pointer;z-index:5}
 .step{display:none;flex-direction:column;align-items:center;width:100%}
 .step.on{display:flex}
+/* ---- credits footer ---- */
+.creds{margin-top:28px;text-align:center;font-size:12.5px;opacity:.85;line-height:1.6;padding-bottom:8px}
+.credlinks{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.credlinks a{color:#ffd54a;text-decoration:none;background:rgba(255,255,255,.07);border:1px solid rgba(255,213,74,.3);border-radius:20px;padding:5px 14px;font-size:13px;font-weight:700}
+/* ---- quest intro ---- */
+#scr-intro{background:rgba(8,5,28,.97);z-index:50;justify-content:center}
+.qcard{max-width:480px;width:100%;background:linear-gradient(170deg,#1c1450,#321560);border:2px solid rgba(255,213,74,.55);border-radius:24px;padding:26px 24px;box-shadow:0 0 70px rgba(255,213,74,.18),inset 0 0 40px rgba(0,0,0,.3)}
+.qtitle{font-family:'Frank Ruhl Libre',serif;font-weight:900;color:#ffd54a;font-size:26px;text-align:center;margin-bottom:14px;text-shadow:0 0 24px rgba(255,213,74,.4)}
+#qtext{font-size:16.5px;line-height:1.95;min-height:250px;white-space:pre-wrap;font-weight:600}
+#qtext::after{content:"▌";color:#ffd54a;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:0}}
 /* ---- island ---- */
 #scr-island{padding:0;background:#7ec8ef}
 #icv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
@@ -159,8 +171,9 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
     <div class="card" id="kidlist"></div>
     <div class="card">
       <div class="inrow"><input type="text" id="nk-name" placeholder="שם הילד/ה" maxlength="12">
-      <select id="nk-mode" style="width:130px"><option value="slow">קל (6-8)</option><option value="normal">מהיר (9-12)</option></select></div>
+      <select id="nk-mode" style="width:185px"><option value="slow">🐢 מרוץ רגוע (גיל 6-8)</option><option value="normal">🚀 מרוץ מהיר (גיל 9-12)</option></select></div>
       <button class="btn sec" onclick="addKid()">➕ הוסף</button>
+      <div class="hint">🐢/🚀 = כמה מהר ירוץ המשחק של הילד. לקטנים המרוץ איטי ונוח, לגדולים מהיר ומאתגר. אפשר לשנות תמיד באזור ההורים.</div>
     </div>
     <button class="btn" id="st2next" onclick="wizNext(3)" disabled>המשך ←</button>
   </div>
@@ -182,6 +195,22 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
   <div class="tag" id="famline"></div>
   <div class="kids" id="kidsel"></div>
   <button class="btn sec" style="margin-top:22px" onclick="openParent()">🔐 אזור הורים</button>
+  <div class="creds">נבנה באהבה ע״י שמשון ג׳יקוב — מורה, מחנך ומדריך AI
+    <div class="credlinks">
+      <a href="https://chat.whatsapp.com/FSV8LARclvl9tX5P4xOHZU" target="_blank" rel="noopener">💬 קבוצת ה-AI שלי</a>
+      <a href="https://www.youtube.com/@shemesh613" target="_blank" rel="noopener">▶️ יוטיוב</a>
+      <a href="https://shemesh613.github.io/shimshon-cv/" target="_blank" rel="noopener">👤 עליי</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUEST INTRO ===== -->
+<div class="scr" id="scr-intro">
+  <div class="qcard">
+    <div class="qtitle">⚡ תדריך משימה ⚡</div>
+    <div id="qtext"></div>
+    <button class="btn play" id="qbtn" style="display:none" onclick="introDone()">🫡 קיבלתי! למשימה!</button>
+  </div>
 </div>
 
 <!-- ===== KID HOME ===== -->
@@ -441,11 +470,11 @@ function rollover(){
 var wizPin='';
 function buildPinpad(el,cb){
   var keys=[1,2,3,4,5,6,7,8,9,'⌫',0,'✓'];el.innerHTML='';
-  keys.forEach(function(k){var b=document.createElement('button');b.className='pk';b.textContent=k;b.onclick=function(){ac();cb(k)};el.appendChild(b)});
+  keys.forEach(function(k){var b=document.createElement('button');b.className='pk'+(k==='✓'?' ok':'');b.textContent=k;b.onclick=function(){ac();cb(k)};el.appendChild(b)});
 }
 function wizNext(n){document.querySelectorAll('#scr-setup .step').forEach(function(s){s.classList.remove('on')});$('#st'+n).classList.add('on');if(n===2)renderKidList();if(n===3)renderTaskSetup()}
 function renderKidList(){
-  var h='';S.kids.forEach(function(k,i){h+='<div class="trow"><span style="font-size:20px">🏃</span><b>'+k.name+'</b><span style="opacity:.6;font-size:13px">'+(k.mode==='slow'?'רגוע':'מלא')+'</span><span class="del" onclick="S.kids.splice('+i+',1);renderKidList()">✖</span></div>'});
+  var h='';S.kids.forEach(function(k,i){h+='<div class="trow"><span style="font-size:20px">🏃</span><b>'+k.name+'</b><span style="opacity:.6;font-size:13px">'+(k.mode==='slow'?'🐢 מרוץ רגוע':'🚀 מרוץ מהיר')+'</span><span class="del" onclick="S.kids.splice('+i+',1);renderKidList()">✖</span></div>'});
   $('#kidlist').innerHTML=h||'<div style="opacity:.6;text-align:center;padding:8px">עדיין אין ילדים — הוסיפו למטה 👇</div>';
   $('#st2next').disabled=S.kids.length===0;
 }
@@ -465,7 +494,7 @@ function renderKids(){
     var doneN=k.done.length,total=S.tasks.filter(function(t){return t.on}).length;
     var d=document.createElement('div');d.className='kidcard';
     d.innerHTML='<canvas width="90" height="90"></canvas><div><div class="kn">'+k.name+'</div><div class="ks">✅ '+doneN+'/'+total+' משימות · ⏱️ '+Math.round(k.fuel)+' שנ׳ · 🪙 '+k.coins+'</div></div><div class="karr">◄</div>';
-    d.onclick=function(){ac();K=k;show('scr-home');renderHome()};
+    d.onclick=function(){ac();K=k;if(!k.intro)startIntro();else{show('scr-home');renderHome()}};
     el.appendChild(d);paintCharCanvas(d.querySelector('canvas'),k.charId);
   });
 }
@@ -553,15 +582,32 @@ function ptab(t){
     h+='<div class="inrow"><input type="text" id="pt-em" placeholder="😀" maxlength="4" style="width:58px;flex:none;text-align:center"><input type="text" id="pt-name" placeholder="משימה חדשה..."></div><button class="btn sec" onclick="pAddTask()">➕ הוסף</button>';
   }
   else if(t==='kids'){
-    S.kids.forEach(function(k,i){h+='<div class="trow"><b>'+k.name+'</b><select style="width:120px;margin-inline-start:auto" onchange="S.kids['+i+'].mode=this.value;save()"><option value="slow"'+(k.mode==='slow'?' selected':'')+'>קל (6-8)</option><option value="normal"'+(k.mode==='normal'?' selected':'')+'>מהיר (9-12)</option></select><span class="del" onclick="if(confirm(\'למחוק את '+k.name+'?\')){S.kids.splice('+i+',1);save();ptab(\'kids\')}">✖</span></div>'});
-    h+='<div class="inrow"><input type="text" id="pk-name" placeholder="שם" maxlength="12"><select id="pk-mode" style="width:120px"><option value="slow">קל</option><option value="normal">מהיר</option></select></div><button class="btn sec" onclick="pAddKid()">➕ הוסף ילד/ה</button>';
-    h+='<div class="hint">🔥 רצף משפחתי נשמר כשכל ילד משלים לפחות 3 משימות ביום. יש 2 הקפאות־רצף בשבוע לימים חלשים.</div>';
+    S.kids.forEach(function(k,i){h+='<div class="trow"><b>'+k.name+'</b><select style="width:165px;margin-inline-start:auto" onchange="S.kids['+i+'].mode=this.value;save()"><option value="slow"'+(k.mode==='slow'?' selected':'')+'>🐢 מרוץ רגוע (6-8)</option><option value="normal"'+(k.mode==='normal'?' selected':'')+'>🚀 מרוץ מהיר (9-12)</option></select><span class="del" onclick="if(confirm(\'למחוק את '+k.name+'?\')){S.kids.splice('+i+',1);save();ptab(\'kids\')}">✖</span></div>'});
+    h+='<div class="inrow"><input type="text" id="pk-name" placeholder="שם" maxlength="12"><select id="pk-mode" style="width:165px"><option value="slow">🐢 מרוץ רגוע</option><option value="normal">🚀 מרוץ מהיר</option></select></div><button class="btn sec" onclick="pAddKid()">➕ הוסף ילד/ה</button>';
+    h+='<div class="hint">🐢/🚀 = מהירות המרוץ של הילד במשחק. 🔥 רצף משפחתי נשמר כשכל ילד משלים לפחות 3 משימות ביום. יש 2 הקפאות־רצף בשבוע לימים חלשים.</div>';
   }
   el.innerHTML=h;
 }
 function approveKid(i){var k=S.kids[i];S.approved[k.id]=true;k.coins+=20;save();sndCheck();toast('✓ אושר! '+k.name+' קיבל/ה 🪙 20');ptab('approve')}
 function pAddTask(){var n=$('#pt-name').value.trim();if(!n)return;S.tasks.push({id:'t'+Date.now(),em:$('#pt-em').value.trim()||'⭐',name:n,on:true});save();ptab('tasks')}
 function pAddKid(){var n=$('#pk-name').value.trim();if(!n)return;S.kids.push(kidNew(n,$('#pk-mode').value));save();ptab('kids')}
+
+/* ---------- quest intro (once per kid) ---------- */
+var INTRO_TXT='שלום, אלוף! 🫡\nזוהי המשימה שלך:\n\n🏝️ קיבלת אי קסום — אבל הוא ריק לגמרי!\nהמטרה: להפוך אותו לממלכה.\n\n🪙 בשביל לבנות צריך מטבעות. ככה משיגים:\n✅ משימות אמיתיות בבית = זמן מרוץ\n🏃 רצים במרוץ = אוספים מטבעות\n🏗️ במטבעות בונים באי: בתים, חיות, מגדלים!\n\nכל יום של משימות — האי גדל 🔥\nבהצלחה, אלוף. סומכים עליך!';
+function startIntro(){
+  show('scr-intro');ac();
+  var el=$('#qtext');el.textContent='';$('#qbtn').style.display='none';
+  var i=0;clearInterval(startIntro._t);
+  startIntro._t=setInterval(function(){
+    i++;el.textContent=INTRO_TXT.slice(0,i);
+    if(i%3===0)tone(620+((i*41)%320),.03,'square',.035);
+    if(i>=INTRO_TXT.length){clearInterval(startIntro._t);$('#qbtn').style.display='block'}
+  },26);
+  $('#scr-intro').onclick=function(){
+    if(el.textContent.length<INTRO_TXT.length){clearInterval(startIntro._t);el.textContent=INTRO_TXT;$('#qbtn').style.display='block'}
+  };
+}
+function introDone(){K.intro=true;save();sndCheck();show('scr-home');renderHome()}
 
 /* ---------- confetti ---------- */
 var confCv=null,confCtx=null,confP=[];
