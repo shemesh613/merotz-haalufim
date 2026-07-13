@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>מרוץ האלופים ⚡ עושים משימות — מקבלים משחק!</title>
+<title>מרוץ האלופים ⚡ עושים משימות — רצים במרוץ ובונים אי משלכם!</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -163,7 +163,7 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
     <h1 class="logo">⚡ מרוץ האלופים</h1>
     <div class="tag">עושים משימות בבית — מקבלים זמן משחק! 🎮</div>
     <div class="card">
-      <p style="line-height:1.8;font-size:16.5px;text-align:center">פשוט מאוד:<br>✅ עושים משימה אמיתית בבית<br>⏱️ מקבלים זמן משחק<br>🏃 רצים במרוץ!</p>
+      <p style="line-height:1.8;font-size:16.5px;text-align:center">פשוט מאוד:<br>✅ עושים משימה אמיתית בבית<br>⏱️ מקבלים זמן משחק<br>🏃 רצים במרוץ ואוספים מטבעות<br>🏝️ ובונים אי משלכם — שגדל כל הקיץ!</p>
     </div>
     <div class="hint">ההורה בוחר קוד סודי — ומתחילים 👇</div>
     <div class="card">
@@ -526,7 +526,7 @@ function finishSetup(){if(!S.tasks.some(function(t){return t.on})){toast('צרי
 /* ---------- kid select ---------- */
 function renderKids(){
   renderPromo();
-  $('#famline').innerHTML='🔥 כל המשפחה ברצף: <b>'+S.streak+' ימים</b>';
+  $('#famline').innerHTML='🏃 רצים · 🪙 אוספים · 🏝️ בונים אי &nbsp;|&nbsp; 🔥 כל המשפחה ברצף: <b>'+S.streak+' ימים</b>';
   var el=$('#kidsel');el.innerHTML='';
   S.kids.forEach(function(k){
     var doneN=k.done.length,total=S.tasks.filter(function(t){return t.on}).length;
