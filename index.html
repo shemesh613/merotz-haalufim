@@ -157,12 +157,16 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
     <div class="card">
       <p style="line-height:1.8;font-size:16.5px;text-align:center">פשוט מאוד:<br>✅ עושים משימה אמיתית בבית<br>⏱️ מקבלים זמן משחק<br>🏃 רצים במרוץ!</p>
     </div>
-    <button class="btn play" onclick="demoRun()">🎮 לנסות את המשחק עכשיו!</button>
-    <div class="hint">אהבתם? ההורה בוחר קוד סודי למטה — ומתחילים 👇</div>
+    <div class="hint">ההורה בוחר קוד סודי — ומתחילים 👇</div>
     <div class="card">
       <b>בחרו קוד הורה (4 ספרות):</b>
       <div id="pindots">‎</div>
       <div class="pinpad" id="pinpad1"></div>
+    </div>
+    <div class="hint"><a href="#" onclick="document.getElementById('joinrow').style.display='flex';return false" style="color:#8fd0ff;text-decoration:none">🔄 כבר הגדרתם במכשיר אחר? יש לכם קוד משפחה? לחצו כאן</a></div>
+    <div class="inrow" id="joinrow" style="display:none;max-width:520px;width:100%;margin-top:10px">
+      <input type="text" id="joincode" placeholder="קוד משפחה (למשל: K7XM2PQ9WD)" style="text-transform:uppercase;letter-spacing:2px">
+      <button class="btn sec" style="width:auto;margin:0;flex:none" onclick="joinFamily(document.getElementById('joincode').value)">🔄 חבר</button>
     </div>
   </div>
   <div class="step" id="st2">
@@ -286,11 +290,20 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
   <div class="step" id="parea">
     <h1 class="logo" style="font-size:24px;margin-top:34px">🔧 ניהול</h1>
     <div class="tabs">
-      <div class="tab on" data-t="approve" onclick="ptab('approve')">✅ אישור יומי</div>
+      <div class="tab on" data-t="approve" onclick="ptab('approve')">✅ אישור</div>
       <div class="tab" data-t="tasks" onclick="ptab('tasks')">📋 משימות</div>
       <div class="tab" data-t="kids" onclick="ptab('kids')">👦 ילדים</div>
+      <div class="tab" data-t="sync" onclick="ptab('sync')">🔄 סנכרון</div>
     </div>
     <div class="card" id="pcontent"></div>
+    <div class="card" style="border-color:rgba(143,208,255,.35)">
+      <div style="font-size:14.5px;line-height:1.8;opacity:.92">👋 <b>נעים להכיר — אני שמשון ג׳יקוב</b>, מורה ומחנך שבנה את המשחק הזה להורים כמוני.<br>אני מעביר <b>סדנאות AI למורים ולצוותי חינוך</b> ומלמד איך לבנות דברים כאלה בעצמכם.</div>
+      <div class="credlinks" style="justify-content:flex-start;margin-top:10px">
+        <a href="https://chat.whatsapp.com/FSV8LARclvl9tX5P4xOHZU" target="_blank" rel="noopener">💬 קבוצת ה-AI שלי</a>
+        <a href="https://www.youtube.com/@shemesh613" target="_blank" rel="noopener">▶️ יוטיוב</a>
+        <a href="https://shemesh613.github.io/shimshon-cv/" target="_blank" rel="noopener">👤 מי אני</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -306,7 +319,7 @@ var K=null;           // current kid ref
 var TESTMODE=location.search.indexOf('test')>=0;
 
 function today(){return new Date().toLocaleDateString('en-CA')}
-function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(typeof syncPush==='function')syncPush()}
 function show(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});$('#'+id).classList.add('on')}
 function toast(msg,ms){var t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(function(){t.classList.remove('show')},ms||2600)}
 
@@ -478,7 +491,7 @@ function renderKidList(){
   $('#kidlist').innerHTML=h||'<div style="opacity:.6;text-align:center;padding:8px">עדיין אין ילדים — הוסיפו למטה 👇</div>';
   $('#st2next').disabled=S.kids.length===0;
 }
-function addKid(){var n=$('#nk-name').value.trim();if(!n){toast('כתבו שם 🙂');return}S.kids.push(kidNew(n,$('#nk-mode').value));$('#nk-name').value='';sndCheck();renderKidList()}
+function addKid(){var n=$('#nk-name').value.trim().replace(/[<>&"']/g,'');if(!n){toast('כתבו שם 🙂');return}S.kids.push(kidNew(n,$('#nk-mode').value));$('#nk-name').value='';sndCheck();renderKidList()}
 function renderTaskSetup(){
   var h='';S.tasks.forEach(function(t,i){h+='<div class="trow"><span style="font-size:20px">'+t.em+'</span><span>'+t.name+'</span><div class="sw'+(t.on?' on':'')+'" onclick="S.tasks['+i+'].on=!S.tasks['+i+'].on;renderTaskSetup()"></div></div>'});
   $('#tasklist').innerHTML=h;
@@ -586,11 +599,12 @@ function ptab(t){
     h+='<div class="inrow"><input type="text" id="pk-name" placeholder="שם" maxlength="12"><select id="pk-mode" style="width:165px"><option value="slow">🐢 מרוץ רגוע</option><option value="normal">🚀 מרוץ מהיר</option></select></div><button class="btn sec" onclick="pAddKid()">➕ הוסף ילד/ה</button>';
     h+='<div class="hint">🐢/🚀 = מהירות המרוץ של הילד במשחק. 🔥 רצף משפחתי נשמר כשכל ילד משלים לפחות 3 משימות ביום. יש 2 הקפאות־רצף בשבוע לימים חלשים.</div>';
   }
+  else if(t==='sync'){h=syncTab()}
   el.innerHTML=h;
 }
 function approveKid(i){var k=S.kids[i];S.approved[k.id]=true;k.coins+=20;save();sndCheck();toast('✓ אושר! '+k.name+' קיבל/ה 🪙 20');ptab('approve')}
 function pAddTask(){var n=$('#pt-name').value.trim();if(!n)return;S.tasks.push({id:'t'+Date.now(),em:$('#pt-em').value.trim()||'⭐',name:n,on:true});save();ptab('tasks')}
-function pAddKid(){var n=$('#pk-name').value.trim();if(!n)return;S.kids.push(kidNew(n,$('#pk-mode').value));save();ptab('kids')}
+function pAddKid(){var n=$('#pk-name').value.trim().replace(/[<>&"']/g,'');if(!n)return;S.kids.push(kidNew(n,$('#pk-mode').value));save();ptab('kids')}
 
 /* ---------- quest intro (once per kid) ---------- */
 var INTRO_TXT='שלום, אלוף! 🫡\nזוהי המשימה שלך:\n\n🏝️ קיבלת אי קסום — אבל הוא ריק לגמרי!\nהמטרה: להפוך אותו לממלכה.\n\n🪙 בשביל לבנות צריך מטבעות. ככה משיגים:\n✅ משימות אמיתיות בבית = זמן מרוץ\n🏃 רצים במרוץ = אוספים מטבעות\n🏗️ במטבעות בונים באי: בתים, חיות, מגדלים!\n\nכל יום של משימות — האי גדל 🔥\nבהצלחה, אלוף. סומכים עליך!';
@@ -1280,6 +1294,109 @@ function islFrame(now){
 </script>
 <script>
 'use strict';
+/* =============== family sync — Firebase RTDB (REST) =============== */
+var FB='https://album-bea15-default-rtdb.firebaseio.com/alufim/f/';
+var SYNC_OK=null,_pushT=null,_lastPull=0;
+
+function syncCode(){var A='ABCDEFGHJKMNPQRSTUVWXYZ23456789',c='';for(var i=0;i<10;i++)c+=A[Math.floor(Math.random()*A.length)];return c}
+
+/* Firebase drops empty arrays/objects — rebuild them after every pull */
+function syncFix(s){
+  s.record=s.record||{};s.approved=s.approved||{};s.kids=s.kids||[];s.tasks=s.tasks||[];
+  s.missions=s.missions&&s.missions.length?s.missions:dailyMissions();
+  s.kids.forEach(function(k){
+    k.done=k.done||[];k.mDone=k.mDone||[];k.unlocked=(k.unlocked&&k.unlocked.length)?k.unlocked:[0];
+    k.mProg=k.mProg||{};k.island=k.island||[];k.best=k.best||{dist:0,coins:0};
+    if(k.coins===undefined)k.coins=0;if(k.fuel===undefined)k.fuel=0;
+  });
+  return s;
+}
+
+/* push local S to cloud (debounced; rev = last-write-wins) */
+function syncPush(){
+  if(!S||!S.sync||!S.sync.code)return;
+  clearTimeout(_pushT);
+  _pushT=setTimeout(function(){
+    S.sync.rev=(S.sync.rev||0)+1;
+    try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+    fetch(FB+S.sync.code+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({rev:S.sync.rev,ts:Date.now(),s:S})})
+      .then(function(r){SYNC_OK=r.ok;syncDot()})
+      .catch(function(){SYNC_OK=false;syncDot()});
+  },1200);
+}
+
+/* pull cloud if newer; done(changed) */
+function syncPull(done){
+  if(!S||!S.sync||!S.sync.code){if(done)done(false);return}
+  _lastPull=Date.now();
+  fetch(FB+S.sync.code+'.json').then(function(r){return r.json()}).then(function(c){
+    SYNC_OK=true;syncDot();
+    if(c&&c.s&&c.rev>(S.sync.rev||0)){
+      var code=S.sync.code;
+      S=syncFix(c.s);S.sync=S.sync||{};S.sync.code=code;S.sync.rev=c.rev;
+      try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+      if(done)done(true);
+    }else if(done)done(false);
+  }).catch(function(){SYNC_OK=false;syncDot();if(done)done(false)});
+}
+function syncPullMaybe(){ /* throttled pull for kid-select screen */
+  if(Date.now()-_lastPull<15000)return;
+  syncPull(function(ch){if(ch){rollover();var on=document.querySelector('.scr.on');if(on&&on.id==='scr-kids')renderKids()}});
+}
+
+/* join an existing family from the welcome screen */
+function joinFamily(code){
+  code=(code||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(code.length<8){toast('הקוד קצר מדי — בדקו שוב 🙂');return}
+  toast('🔄 מתחבר...');
+  fetch(FB+code+'.json').then(function(r){return r.json()}).then(function(c){
+    if(!c||!c.s){toast('קוד לא נמצא 🙈 בדקו את האותיות');return}
+    S=syncFix(c.s);S.sync={code:code,rev:c.rev||1};
+    try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+    sndFanfare();confettiBurst();toast('🔄 מחובר! המשפחה מסונכרנת');
+    rollover();show('scr-kids');renderKids();
+  }).catch(function(){toast('בעיית אינטרנט — נסו שוב')});
+}
+
+/* parent-area actions */
+function syncCreate(){S.sync={code:syncCode(),rev:0};save();toast('🔄 קוד משפחה נוצר!');ptab('sync')}
+function syncNewCode(){
+  if(!confirm('קוד חדש ינתק את המכשירים האחרים עד שיקישו אותו מחדש. להמשיך?'))return;
+  var old=S.sync&&S.sync.code;
+  if(old)fetch(FB+old+'.json',{method:'DELETE'}).catch(function(){});
+  S.sync={code:syncCode(),rev:0};save();ptab('sync');
+}
+function syncCopy(){
+  var c=S.sync.code;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(c).then(function(){toast('✅ הקוד הועתק — שלחו למכשיר השני')});
+  else toast('הקוד: '+c);
+}
+function syncDot(){var d=document.getElementById('syncdot');if(d){d.textContent=SYNC_OK===false?'🔴 בעיית חיבור — ינוסה שוב אוטומטית':(SYNC_OK?'🟢 מסונכרן':'⏳ ממתין...')}}
+function syncTab(){
+  var h='';
+  if(S.sync&&S.sync.code){
+    h+='<div style="text-align:center"><div style="font-size:13.5px;opacity:.8;margin-bottom:6px">קוד המשפחה שלכם:</div>';
+    h+='<div style="font-family:monospace;font-size:26px;font-weight:800;letter-spacing:5px;color:#ffd54a;background:rgba(0,0,0,.35);border-radius:12px;padding:10px;margin-bottom:8px">'+S.sync.code+'</div>';
+    h+='<div id="syncdot" style="font-size:13.5px;margin-bottom:10px">'+(SYNC_OK===false?'🔴 בעיית חיבור':'🟢 מסונכרן')+'</div></div>';
+    h+='<button class="btn sec" onclick="syncCopy()">📋 העתק קוד</button>';
+    h+='<button class="btn sec" onclick="syncNewCode()">🔁 החלף קוד (מנתק מכשירים ישנים)</button>';
+    h+='<div class="hint">📱 במכשיר השני: פותחים את האתר ← במסך הפתיחה לוחצים "יש לכם קוד משפחה?" ← מקישים את הקוד. מאותו רגע הכול משותף: משימות, מטבעות, האיים והרצף.<br><br>🔒 <b>אבטחה:</b> הקוד הוא המפתח היחיד למשפחה — כמו מפתח לבית. אל תפרסמו אותו, שתפו רק עם בני הבית. אפשר להחליף קוד בכל רגע.</div>';
+  }else{
+    h+='<p style="font-size:15px;line-height:1.8">רוצים שההורה יאשר מהטלפון שלו והילדים ישחקו בטאבלט — והכול יישמר יחד בענן?</p>';
+    h+='<button class="btn" onclick="syncCreate()">🔄 צור קוד משפחה</button>';
+    h+='<div class="hint">נוצר קוד סודי בן 10 תווים. מקישים אותו פעם אחת בכל מכשיר — ומאז הכול מסונכרן אוטומטית. בלי הרשמה, בחינם.</div>';
+  }
+  return h;
+}
+/* periodic gentle pull while on the family screen */
+setInterval(function(){
+  var on=document.querySelector('.scr.on');
+  if(on&&on.id==='scr-kids'&&S&&S.sync&&S.sync.code)syncPullMaybe();
+},30000);
+</script>
+<script>
+'use strict';
 /* =============== boot =============== */
 function boot(){
   var raw=null;try{raw=localStorage.getItem(LS)}catch(e){}
@@ -1289,6 +1406,8 @@ function boot(){
     if(!S.record)S.record={};
     rollover();
     show('scr-kids');renderKids();
+    /* adopt newer cloud state if this family is synced */
+    if(typeof syncPull==='function')syncPull(function(ch){if(ch){rollover();renderKids();toast('🔄 עודכן מהענן')}});
   }else{
     S=newState();
     show('scr-setup');
