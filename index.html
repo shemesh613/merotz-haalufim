@@ -1336,6 +1336,17 @@ function islFrame(now){
 var FB='https://album-bea15-default-rtdb.firebaseio.com/alufim/f/';
 var SYNC_OK=null,_pushT=null,_lastPull=0;
 
+/* anonymous visit counter — fire-and-forget; wrapped so a failure can never affect the game */
+try{
+  if(!sessionStorage.getItem('alufimVisit')){
+    sessionStorage.setItem('alufimVisit','1');
+    var _stats={total:{'.sv':{increment:1}}};
+    _stats['days/'+today()]={'.sv':{increment:1}};
+    if(!localStorage.getItem('alufimSeen')){localStorage.setItem('alufimSeen','1');_stats.devices={'.sv':{increment:1}}}
+    fetch('https://album-bea15-default-rtdb.firebaseio.com/alufim/stats.json',{method:'PATCH',body:JSON.stringify(_stats)}).catch(function(){});
+  }
+}catch(e){}
+
 function syncCode(){var A='ABCDEFGHJKMNPQRSTUVWXYZ23456789',c='';for(var i=0;i<10;i++)c+=A[Math.floor(Math.random()*A.length)];return c}
 
 /* Firebase drops empty arrays/objects — rebuild them after every pull */
