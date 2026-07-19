@@ -130,6 +130,8 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
 .pbtn{display:inline-block;background:linear-gradient(180deg,#ffd54a,#ff9d2e);color:#241a05;font-weight:800;border-radius:12px;padding:8px 18px;text-decoration:none;font-size:14px}
 /* ---- credits footer ---- */
 .creds{margin-top:28px;text-align:center;font-size:12.5px;opacity:.85;line-height:1.6;padding-bottom:8px}
+/* clean mode (?clean=1) — hides personal links + promo for this device only */
+body.clean .credlinks,body.clean .promoCard,body.clean #promofix{display:none!important}
 .credlinks{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
 .credlinks a{color:#ffd54a;text-decoration:none;background:rgba(255,255,255,.07);border:1px solid rgba(255,213,74,.3);border-radius:20px;padding:5px 14px;font-size:13px;font-weight:700}
 /* ---- quest intro ---- */
@@ -310,7 +312,7 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
       <div class="tab" data-t="sync" onclick="ptab('sync')">🔄 סנכרון</div>
     </div>
     <div class="card" id="pcontent"></div>
-    <div class="card" style="border-color:rgba(143,208,255,.35)">
+    <div class="card promoCard" style="border-color:rgba(143,208,255,.35)">
       <div style="font-size:14.5px;line-height:1.8;opacity:.92">👋 <b>נעים להכיר — אני שמשון ג׳יקוב</b>, מורה ומחנך שבנה את המשחק הזה להורים כמוני.<br>אני מעביר <b>סדנאות AI למורים ולצוותי חינוך</b> ומלמד איך לבנות דברים כאלה בעצמכם.</div>
       <div class="credlinks" style="justify-content:flex-start;margin-top:10px">
         <a href="https://chat.whatsapp.com/FSV8LARclvl9tX5P4xOHZU" target="_blank" rel="noopener">💬 קבוצת ה-AI שלי</a>
@@ -332,6 +334,17 @@ var LS='alufimV1';
 var S=null;           // persistent state
 var K=null;           // current kid ref
 var TESTMODE=location.search.indexOf('test')>=0;
+
+/* clean mode: ?clean=1 turns it on for this device (sticky), ?clean=0 turns it off */
+var CLEAN=false;
+(function(){
+  var q=new URLSearchParams(location.search);
+  try{
+    if(q.has('clean'))localStorage.setItem('alufimClean',q.get('clean')==='0'?'':'1');
+    CLEAN=localStorage.getItem('alufimClean')==='1';
+  }catch(e){CLEAN=q.get('clean')==='1'}
+  if(CLEAN)document.body.classList.add('clean');
+})();
 
 function today(){return new Date().toLocaleDateString('en-CA')}
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(typeof syncPush==='function')syncPush()}
@@ -638,7 +651,7 @@ function renderPromo(){
   var hid=false;try{hid=localStorage.getItem('alufimAdHide')===today()}catch(e){}
   var live=today()<=PROMO_END;
   var el=$('#promofix');if(!el)return;
-  if(hid||!live||!PROMO_READY){el.innerHTML='';return}
+  if(CLEAN||hid||!live||!PROMO_READY){el.innerHTML='';return}
   if(el.querySelector('.promo'))return;
   el.innerHTML='<div class="promo"><span class="px" onclick="hidePromo()">✖</span><b>🎨 להורים — החופש הזה: סדנת AI לילדים בזום!</b><div class="pd">הילדים יוצרים בעצמם: תמונות, שירים, סרטונים, משחקים ואתרים · 7 מפגשים של שעה · 15-22.7 · 420 ₪ · קבוצות קטנות</div><a class="pbtn" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! אשמח לפרטים על סדנת ה-AI לילדים 🎨')+'" target="_blank" rel="noopener">📲 לפרטים והרשמה</a></div>';
 }
