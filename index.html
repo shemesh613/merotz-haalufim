@@ -657,7 +657,7 @@ function pAddKid(){var n=$('#pk-name').value.trim().replace(/[<>&"']/g,'');if(!n
 
 /* ---------- time-limited promo modal (auto-expires, appears gently after 15s, once/day) ---------- */
 var PROMO_END='2026-09-01',PROMO_READY=false,PROMO_SCR_OK=true;
-setTimeout(function(){PROMO_READY=true;renderPromo()},15000);
+setTimeout(function(){PROMO_READY=true;renderPromo()},10000);
 function renderPromo(){
   var hid=false;try{hid=localStorage.getItem('alufimAdHide')===today()}catch(e){}
   var live=today()<=PROMO_END;
