@@ -316,6 +316,7 @@ body.clean .credlinks,body.clean .promoCard,body.clean #promofix{display:none!im
   </div>
   <div class="step" id="parea">
     <h1 class="logo" style="font-size:24px;margin-top:34px">🔧 ניהול</h1>
+    <div id="kidsAd"></div>
     <div class="tabs">
       <div class="tab on" data-t="approve" onclick="ptab('approve')">✅ אישור</div>
       <div class="tab" data-t="tasks" onclick="ptab('tasks')">📋 משימות</div>
@@ -623,7 +624,7 @@ var pinBuf='';
 function openParent(){show('scr-parent');$('#pgate').classList.add('on');$('#parea').classList.remove('on');pinBuf='';$('#pindots2').textContent='‎'}
 function pinKey2(k){
   if(k==='⌫'){pinBuf=pinBuf.slice(0,-1)}
-  else if(k==='✓'){if(pinBuf===S.pin){$('#pgate').classList.remove('on');$('#parea').classList.add('on');ptab('approve')}else{toast('קוד שגוי 🙈');pinBuf=''}}
+  else if(k==='✓'){if(pinBuf===S.pin){$('#pgate').classList.remove('on');$('#parea').classList.add('on');renderKidsAd();ptab('approve')}else{toast('קוד שגוי 🙈');pinBuf=''}}
   else if(pinBuf.length<4){pinBuf+=k;sndTick()}
   $('#pindots2').textContent=pinBuf.replace(/./g,'●')||'‎';
 }
@@ -675,6 +676,20 @@ function renderPromo(){
   el.onclick=function(e){if(e.target===el)hidePromo()};
 }
 function hidePromo(){try{localStorage.setItem('alufimAdHide',today())}catch(e){}renderPromo()}
+
+/* ---------- parent-area banner: kids AI course (shown only after the parent PIN, never during play) ---------- */
+var KIDSAD_END='2026-10-31';
+function renderKidsAd(){
+  var el=$('#kidsAd');if(!el)return;
+  var hid=false;try{hid=localStorage.getItem('alufimKidsAdHide')===today()}catch(e){}
+  if(CLEAN||hid||today()>KIDSAD_END){el.innerHTML='';return}
+  el.innerHTML='<div class="promo" style="margin:12px auto 4px;padding:18px 18px 16px;animation:none"><span class="px" onclick="hideKidsAd()">✖</span>'+
+    '<b>ראיתם מה בנינו כאן עם AI? 🤯<br>עכשיו תור הילדים שלכם.</b>'+
+    '<div class="pd">שיבנו בעצמם משחק כזה — ולא רק ישחקו בו 🕹️</div>'+
+    '<div class="pmeta">10 מפגשי AI לילדים · פעם בשבוע · אחרי החגים</div>'+
+    '<a class="pbtn" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! ראיתי את מרוץ האלופים — אשמח לשמוע על מפגשי ה-AI לילדים אחרי החגים 🚀')+'" target="_blank" rel="noopener">רוצה לשמוע עוד ←</a></div>';
+}
+function hideKidsAd(){try{localStorage.setItem('alufimKidsAdHide',today())}catch(e){}renderKidsAd()}
 
 /* ---------- quest intro (once per kid) ---------- */
 var INTRO_TXT='שלום, אלוף! 🫡\nזוהי המשימה שלך:\n\n🏝️ קיבלת אי קסום — אבל הוא ריק לגמרי!\nהמטרה: להפוך אותו לממלכה.\n\n🪙 בשביל לבנות צריך מטבעות. ככה משיגים:\n✅ משימות אמיתיות בבית = זמן מרוץ\n🏃 רצים במרוץ = אוספים מטבעות\n🏗️ במטבעות בונים באי: בתים, חיות, מגדלים!\n\nכל יום של משימות — האי גדל 🔥\nבהצלחה, אלוף. סומכים עליך!';
