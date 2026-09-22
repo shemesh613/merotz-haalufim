@@ -121,8 +121,9 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
 .step{display:none;flex-direction:column;align-items:center;width:100%}
 .step.on{display:flex}
 /* ---- promo modal (time-limited) ---- */
-#promofix{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,4,20,.74);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-#promofix.show{display:flex}
+#kidsAdPop.show{display:flex}
+#promofix,#kidsAdPop{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,4,20,.74);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+#promofix.show,#kidsAdPop.show{display:flex}
 .promo{position:relative;pointer-events:auto;background:linear-gradient(160deg,#1c1450,#3a1a4e 55%,#4a1e28);border:1.5px solid rgba(255,213,74,.6);border-radius:22px;padding:24px 22px 22px;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.6),inset 0 0 40px rgba(255,213,74,.06);animation:promoIn .55s cubic-bezier(.2,1.3,.4,1)}
 @keyframes promoIn{0%{opacity:0;transform:translateY(26px) scale(.94)}100%{opacity:1;transform:none}}
 .promo .ptag{display:inline-block;background:rgba(255,213,74,.16);border:1px solid rgba(255,213,74,.5);color:#ffd54a;font-weight:800;font-size:12.5px;border-radius:20px;padding:4px 13px;margin-bottom:12px}
@@ -337,6 +338,7 @@ body.clean .credlinks,body.clean .promoCard,body.clean #promofix{display:none!im
 
 <div id="toast"></div>
 <div id="promofix"></div>
+<div id="kidsAdPop"></div>
 <canvas id="confetti"></canvas>
 <script>
 'use strict';
@@ -546,7 +548,7 @@ function renderTaskSetup(){
   $('#tasklist').innerHTML=h;
 }
 function addTaskSetup(){var n=$('#nt-name').value.trim();if(!n){toast('כתבו משימה 🙂');return}S.tasks.push({id:'t'+Date.now(),em:$('#nt-em').value.trim()||'⭐',name:n,on:true});$('#nt-name').value='';$('#nt-em').value='';sndCheck();renderTaskSetup()}
-function finishSetup(){if(!S.tasks.some(function(t){return t.on})){toast('צריך לפחות משימה אחת פעילה');return}save();sndFanfare();confettiBurst();show('scr-kids');renderKids()}
+function finishSetup(){if(!S.tasks.some(function(t){return t.on})){toast('צריך לפחות משימה אחת פעילה');return}save();sndFanfare();confettiBurst();show('scr-kids');renderKids();popKidsAd()}
 
 /* ---------- kid select ---------- */
 function renderKids(){
@@ -679,22 +681,27 @@ function hidePromo(){try{localStorage.setItem('alufimAdHide',today())}catch(e){}
 
 /* ---------- parent-area banner: kids AI course (shown only after the parent PIN, never during play) ---------- */
 var KIDSAD_END='2026-10-31';
-function renderKidsAd(){
-  var el=$('#kidsAd');if(!el)return;
-  var hid=false;try{hid=localStorage.getItem('alufimKidsAdHide')===today()}catch(e){}
-  if(CLEAN||hid||today()>KIDSAD_END){el.innerHTML='';return}
-  el.innerHTML='<div class="promo" style="margin:12px auto 4px;padding:18px 18px 16px;animation:none"><span class="px" onclick="hideKidsAd()">✖</span>'+
+function kidsAdOk(){var hid=false;try{hid=localStorage.getItem('alufimKidsAdHide')===today()}catch(e){}return !(CLEAN||hid||today()>KIDSAD_END)}
+function kidsAdHtml(){
+  return '<div class="promo" style="margin:12px auto 4px;padding:18px 18px 16px"><span class="px" onclick="hideKidsAd()">✖</span>'+
     '<b>ראיתם מה בנינו כאן עם AI? 🤯<br>עכשיו תור הילדים שלכם.</b>'+
     '<div class="pd">שיבנו בעצמם משחק כזה — ולא רק ישחקו בו 🕹️</div>'+
     '<div class="pmeta">10 מפגשי AI לילדים · פעם בשבוע · אחרי החגים</div>'+
     '<a class="pbtn" href="#" onclick="return kidsAdMore(this)">רוצה לשמוע עוד ←</a>'+
-    '<div id="kidsAdMore" style="display:none">'+
+    '<div style="display:none">'+
       '<div class="pd">במפגשים הילד/ה יוצר/ת בעצמו/ה:<br>🎨 תמונות · 🎬 סרטונים · 🎵 שירים · 🕹️ משחקים · 🌐 אתרים</div>'+
       '<a class="pbtn" style="background:linear-gradient(180deg,#3ee07a,#1faa55);color:#032;box-shadow:0 8px 24px rgba(37,211,102,.35)" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! ראיתי את מרוץ האלופים — אשמח לשמוע על מפגשי ה-AI לילדים אחרי החגים 🚀')+'" target="_blank" rel="noopener">💬 דברו איתי בווטסאפ</a>'+
     '</div></div>';
 }
-function kidsAdMore(b){$('#kidsAdMore').style.display='block';b.style.display='none';return false}
-function hideKidsAd(){try{localStorage.setItem('alufimKidsAdHide',today())}catch(e){}renderKidsAd()}
+function renderKidsAd(){var el=$('#kidsAd');if(el)el.innerHTML=kidsAdOk()?kidsAdHtml():''}
+/* popup right after a parent sets / joins with a code (setup wizard or family code) */
+function popKidsAd(){
+  var el=$('#kidsAdPop');if(!el||!kidsAdOk())return;
+  setTimeout(function(){el.innerHTML=kidsAdHtml();el.classList.add('show');el.onclick=function(e){if(e.target===el)closeKidsAdPop()}},1800);
+}
+function closeKidsAdPop(){var el=$('#kidsAdPop');if(el){el.classList.remove('show');el.innerHTML=''}}
+function kidsAdMore(b){b.nextElementSibling.style.display='block';b.style.display='none';return false}
+function hideKidsAd(){try{localStorage.setItem('alufimKidsAdHide',today())}catch(e){}renderKidsAd();closeKidsAdPop()}
 
 /* ---------- quest intro (once per kid) ---------- */
 var INTRO_TXT='שלום, אלוף! 🫡\nזוהי המשימה שלך:\n\n🏝️ קיבלת אי קסום — אבל הוא ריק לגמרי!\nהמטרה: להפוך אותו לממלכה.\n\n🪙 בשביל לבנות צריך מטבעות. ככה משיגים:\n✅ משימות אמיתיות בבית = זמן מרוץ\n🏃 רצים במרוץ = אוספים מטבעות\n🏗️ במטבעות בונים באי: בתים, חיות, מגדלים!\n\nכל יום של משימות — האי גדל 🔥\nבהצלחה, אלוף. סומכים עליך!';
@@ -1562,7 +1569,7 @@ function joinFamily(code){
     S=syncFix(c.s);S.sync={code:code,rev:c.rev||1};
     try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
     sndFanfare();confettiBurst();toast('🔄 מחובר! המשפחה מסונכרנת');
-    rollover();show('scr-kids');renderKids();
+    rollover();show('scr-kids');renderKids();popKidsAd();
   }).catch(function(){toast('בעיית אינטרנט — נסו שוב')});
 }
 
