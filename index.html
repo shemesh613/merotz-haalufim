@@ -687,8 +687,13 @@ function renderKidsAd(){
     '<b>ראיתם מה בנינו כאן עם AI? 🤯<br>עכשיו תור הילדים שלכם.</b>'+
     '<div class="pd">שיבנו בעצמם משחק כזה — ולא רק ישחקו בו 🕹️</div>'+
     '<div class="pmeta">10 מפגשי AI לילדים · פעם בשבוע · אחרי החגים</div>'+
-    '<a class="pbtn" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! ראיתי את מרוץ האלופים — אשמח לשמוע על מפגשי ה-AI לילדים אחרי החגים 🚀')+'" target="_blank" rel="noopener">רוצה לשמוע עוד ←</a></div>';
+    '<a class="pbtn" href="#" onclick="return kidsAdMore(this)">רוצה לשמוע עוד ←</a>'+
+    '<div id="kidsAdMore" style="display:none">'+
+      '<div class="pd">במפגשים הילד/ה יוצר/ת בעצמו/ה:<br>🎨 תמונות · 🎬 סרטונים · 🎵 שירים · 🕹️ משחקים · 🌐 אתרים</div>'+
+      '<a class="pbtn" style="background:linear-gradient(180deg,#3ee07a,#1faa55);color:#032;box-shadow:0 8px 24px rgba(37,211,102,.35)" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! ראיתי את מרוץ האלופים — אשמח לשמוע על מפגשי ה-AI לילדים אחרי החגים 🚀')+'" target="_blank" rel="noopener">💬 דברו איתי בווטסאפ</a>'+
+    '</div></div>';
 }
+function kidsAdMore(b){$('#kidsAdMore').style.display='block';b.style.display='none';return false}
 function hideKidsAd(){try{localStorage.setItem('alufimKidsAdHide',today())}catch(e){}renderKidsAd()}
 
 /* ---------- quest intro (once per kid) ---------- */
