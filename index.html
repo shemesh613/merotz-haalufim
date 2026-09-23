@@ -121,9 +121,8 @@ input[type=text],input[type=number],select{background:rgba(0,0,0,.35);border:1px
 .step{display:none;flex-direction:column;align-items:center;width:100%}
 .step.on{display:flex}
 /* ---- promo modal (time-limited) ---- */
-#kidsAdPop.show{display:flex}
-#promofix,#kidsAdPop{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,4,20,.74);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-#promofix.show,#kidsAdPop.show{display:flex}
+#promofix{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,4,20,.74);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+#promofix.show{display:flex}
 .promo{position:relative;pointer-events:auto;background:linear-gradient(160deg,#1c1450,#3a1a4e 55%,#4a1e28);border:1.5px solid rgba(255,213,74,.6);border-radius:22px;padding:24px 22px 22px;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.6),inset 0 0 40px rgba(255,213,74,.06);animation:promoIn .55s cubic-bezier(.2,1.3,.4,1)}
 @keyframes promoIn{0%{opacity:0;transform:translateY(26px) scale(.94)}100%{opacity:1;transform:none}}
 .promo .ptag{display:inline-block;background:rgba(255,213,74,.16);border:1px solid rgba(255,213,74,.5);color:#ffd54a;font-weight:800;font-size:12.5px;border-radius:20px;padding:4px 13px;margin-bottom:12px}
@@ -338,7 +337,6 @@ body.clean .credlinks,body.clean .promoCard,body.clean #promofix{display:none!im
 
 <div id="toast"></div>
 <div id="promofix"></div>
-<div id="kidsAdPop"></div>
 <canvas id="confetti"></canvas>
 <script>
 'use strict';
@@ -362,7 +360,7 @@ var CLEAN=false;
 
 function today(){return new Date().toLocaleDateString('en-CA')}
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(typeof syncPush==='function')syncPush()}
-function show(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});$('#'+id).classList.add('on');PROMO_SCR_OK=!(id==='scr-run'||id==='scr-island'||id==='scr-intro');renderPromo()}
+function show(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});$('#'+id).classList.add('on');PROMO_SCR_OK=!(id==='scr-run'||id==='scr-island'||id==='scr-intro'||id==='scr-setup'||id==='scr-parent');renderPromo()}
 function toast(msg,ms){var t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(function(){t.classList.remove('show')},ms||2600)}
 
 /* ---------- audio ---------- */
@@ -661,21 +659,12 @@ function pAddKid(){var n=$('#pk-name').value.trim().replace(/[<>&"']/g,'');if(!n
 /* ---------- time-limited promo modal (auto-expires, appears gently after 15s, once/day) ---------- */
 var PROMO_END='2026-09-01',PROMO_READY=false,PROMO_SCR_OK=true;
 setTimeout(function(){PROMO_READY=true;renderPromo()},10000);
-function renderPromo(){
-  var hid=false;try{hid=localStorage.getItem('alufimAdHide')===today()}catch(e){}
-  var live=today()<=PROMO_END;
+function renderPromo(){ /* now shows the kids-AI banner (kidsAdHtml) to every family, once a day, ~10s after entry */
   var el=$('#promofix');if(!el)return;
-  if(CLEAN||hid||!live||!PROMO_READY||!PROMO_SCR_OK){el.classList.remove('show');el.innerHTML='';return}
+  if(!kidsAdOk()||!PROMO_READY||!PROMO_SCR_OK){el.classList.remove('show');el.innerHTML='';return}
   if(el.querySelector('.promo')){el.classList.add('show');return}
-  el.classList.add('show');
-  el.innerHTML='<div class="promo"><span class="px" onclick="hidePromo()">✖</span>'+
-    '<div class="ptag">🎓 חוג חדש · סוף החופש</div>'+
-    '<b>סדנת AI לילדים 🚀<br>יוצרים — לא רק צורכים מסך</b>'+
-    '<div class="pd">7 מפגשים בזום שבהם הילד/ה יוצר/ת בעצמו/ה:<br>🎨 תמונות · 🎬 סרטונים · 🎵 שירים · 🕹️ משחקים · 🌐 אתרים</div>'+
-    '<div class="pmeta">📅 7 מפגשים · 23–31.8<br>💻 בזום מהבית · 👥 קבוצות קטנות ויחס אישי<br>💰 420 ₪ לכל הקורס</div>'+
-    '<div class="purg">⚠️ מספר המקומות מוגבל</div>'+
-    '<a class="pbtn" href="https://wa.me/972526953500?text='+encodeURIComponent('היי! אשמח לפרטים על חוג ה-AI לילדים בסוף החופש 🎨')+'" target="_blank" rel="noopener">📲 לפרטים והרשמה</a></div>';
-  el.onclick=function(e){if(e.target===el)hidePromo()};
+  el.classList.add('show');el.innerHTML=kidsAdHtml();
+  el.onclick=function(e){if(e.target===el)hideKidsAd()};
 }
 function hidePromo(){try{localStorage.setItem('alufimAdHide',today())}catch(e){}renderPromo()}
 
@@ -695,13 +684,9 @@ function kidsAdHtml(){
 }
 function renderKidsAd(){var el=$('#kidsAd');if(el)el.innerHTML=kidsAdOk()?kidsAdHtml():''}
 /* popup right after a parent sets / joins with a code (setup wizard or family code) */
-function popKidsAd(){
-  var el=$('#kidsAdPop');if(!el||!kidsAdOk())return;
-  setTimeout(function(){el.innerHTML=kidsAdHtml();el.classList.add('show');el.onclick=function(e){if(e.target===el)closeKidsAdPop()}},1800);
-}
-function closeKidsAdPop(){var el=$('#kidsAdPop');if(el){el.classList.remove('show');el.innerHTML=''}}
+function popKidsAd(){setTimeout(function(){PROMO_READY=true;renderPromo()},1800)}
 function kidsAdMore(b){b.nextElementSibling.style.display='block';b.style.display='none';return false}
-function hideKidsAd(){try{localStorage.setItem('alufimKidsAdHide',today())}catch(e){}renderKidsAd();closeKidsAdPop()}
+function hideKidsAd(){try{localStorage.setItem('alufimKidsAdHide',today())}catch(e){}renderKidsAd();renderPromo()}
 
 /* ---------- quest intro (once per kid) ---------- */
 var INTRO_TXT='שלום, אלוף! 🫡\nזוהי המשימה שלך:\n\n🏝️ קיבלת אי קסום — אבל הוא ריק לגמרי!\nהמטרה: להפוך אותו לממלכה.\n\n🪙 בשביל לבנות צריך מטבעות. ככה משיגים:\n✅ משימות אמיתיות בבית = זמן מרוץ\n🏃 רצים במרוץ = אוספים מטבעות\n🏗️ במטבעות בונים באי: בתים, חיות, מגדלים!\n\nכל יום של משימות — האי גדל 🔥\nבהצלחה, אלוף. סומכים עליך!';
