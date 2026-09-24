@@ -713,6 +713,7 @@ function introDone(){K.intro=true;save();sndCheck();show('scr-home');renderHome(
 /* ---------- confetti ---------- */
 var confCv=null,confCtx=null,confP=[];
 function confettiBurst(){
+  try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}
   confCv=$('#confetti');confCv.width=innerWidth;confCv.height=innerHeight;confCtx=confCv.getContext('2d');
   var cols=['#ffd54a','#ff6a9e','#7dffa8','#8fd0ff','#c98bff','#ff9d2e'];
   for(var i=0;i<120;i++)confP.push({x:innerWidth/2,y:innerHeight*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*13-3,g:.35,r:Math.random()*6+3,c:cols[i%6],a:1,rot:Math.random()*7,vr:(Math.random()-.5)*.3});
@@ -1673,7 +1674,9 @@ document.addEventListener('DOMContentLoaded',boot);
     else if(!t)el.setAttribute('aria-label',el.getAttribute('title')||'כפתור');
     el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click()}});
   }
-  function scan(root){(root.querySelectorAll?root:document).querySelectorAll('[onclick]').forEach(fix);document.querySelectorAll('.kidcard,.chr,.shopitem').forEach(fix)}
+  function scan(root){(root.querySelectorAll?root:document).querySelectorAll('[onclick]').forEach(fix);document.querySelectorAll('.kidcard,.chr,.shopitem').forEach(fix);
+    document.querySelectorAll('input[placeholder]:not([aria-label])').forEach(function(i){i.setAttribute('aria-label',i.placeholder)});
+    document.querySelectorAll('.pk:not([aria-label])').forEach(function(b){var t=b.textContent;if(t==='⌫')b.setAttribute('aria-label','מחיקת ספרה');else if(t==='✓')b.setAttribute('aria-label','אישור הקוד')})}
   try{scan(document);new MutationObserver(function(){scan(document)}).observe(document.body,{childList:true,subtree:true})}catch(e){}
 })();
 </script>
